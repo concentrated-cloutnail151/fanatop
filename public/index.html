@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Monitoring Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        :root {
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+            /* Default to Light Theme */
+            --bg-color: #f4f7fa;
+            --card-bg-color: #ffffff;
+            --text-primary: #1e293b;
+            --text-secondary: #64748b;
+            --accent-color: #818cf8;
+            --accent-color-transparent: rgba(129, 140, 248, 0.1);
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(149, 157, 165, 0.1);
+            --error-bg: #ef4444;
+        }
+
+        [data-theme='dark'] {
+            --bg-color: #0f172a;
+            --card-bg-color: #1e293b;
+            --text-primary: #e2e8f0;
+            --text-secondary: #94a3b8;
+            --accent-color: #a78bfa;
+            --accent-color-transparent: rgba(167, 139, 250, 0.1);
+            --border-color: #334155;
+            --shadow-color: rgba(0, 0, 0, 0.2);
+            --error-bg: #dc2626;
+        }
+
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 2rem;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto 2rem auto;
+        }
+
+        h1 {
+            font-size: 1.75rem;
+            font-weight: 600;
+        }
+
+        #last-updated {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            max-width: 1400px;
+            margin: auto;
+        }
+
+        .card {
+            background-color: var(--card-bg-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 16px var(--shadow-color);
+            transition: background-color 0.3s, border-color 0.3s, transform 0.2s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+        }
+
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .card-header svg {
+            width: 24px;
+            height: 24px;
+            color: var(--accent-color);
+        }
+
+        .card-title {
+            margin: 0;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .metric-list {
+            padding: 0;
+            margin: 0;
+            list-style: none;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+
+        .metric-item strong {
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+
+        .metric-item span {
+            font-weight: 500;
+        }
+
+        .chart-container {
+            position: relative;
+            height: 150px;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            background-color: var(--border-color);
+            border-radius: 99px;
+            height: 20px;
+            margin-top: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background-color: var(--accent-color);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 99px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75em;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        #error-message {
+            display: none;
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--error-bg);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Theme Toggle Switch */
+        #theme-toggle {
+            background: var(--card-bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            cursor: pointer;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #theme-toggle svg {
+            width: 20px;
+            height: 20px;
+            color: var(--text-secondary);
+        }
+
+        .icon-sun {
+            display: none;
+        }
+
+        .icon-moon {
+            display: block;
+        }
+
+        [data-theme='dark'] .icon-sun {
+            display: block;
+        }
+
+        [data-theme='dark'] .icon-moon {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header">
+        <div>
+            <h1>Dashboard</h1>
+            <p id="last-updated">Connecting...</p>
+        </div>
+        <button id="theme-toggle" title="Toggle theme">
+            <svg class="icon-sun" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z">
+                </path>
+            </svg>
+            <svg class="icon-moon" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path>
+            </svg>
+        </button>
+    </div>
+
+    <div id="error-message">Could not connect to the API.</div>
+
+    <div class="dashboard-grid">
+        <!-- CPU Card -->
+        <div class="card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 002.25-2.25V8.25a2.25 2.25 0 00-2.25-2.25H8.25A2.25 2.25 0 006 8.25v7.5A2.25 2.25 0 008.25 18z" />
+                </svg>
+                <h2 class="card-title">CPU</h2>
+            </div>
+            <ul class="metric-list" id="cpu-info">
+                <li class="metric-item"><strong>Model:</strong> <span id="cpu-model">N/A</span></li>
+                <li class="metric-item"><strong>Cores:</strong> <span id="cpu-cores">N/A</span></li>
+                <li class="metric-item"><strong>Speed:</strong> <span id="cpu-speed">N/A</span></li>
+            </ul>
+            <div class="chart-container"><canvas id="cpuChart"></canvas></div>
+        </div>
+
+        <!-- Memory Card -->
+        <div class="card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M8.25 7.5V6.108c0-1.135.845-2.098 1.976-2.192.373-.03.748-.03 1.125 0 1.131.094 1.976 1.057 1.976 2.192V7.5M12 14.25v-6.375M12 14.25a3 3 0 110-6 3 3 0 010 6z" />
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M3.75 6A2.25 2.25 0 016 3.75h12A2.25 2.25 0 0120.25 6v12A2.25 2.25 0 0118 20.25H6A2.25 2.25 0 013.75 18V6z" />
+                </svg>
+                <h2 class="card-title">Memory</h2>
+            </div>
+            <ul class="metric-list" id="memory-info">
+                <li class="metric-item"><strong>Total:</strong> <span id="mem-total">N/A</span></li>
+                <li class="metric-item"><strong>Used:</strong> <span id="mem-used">N/A</span></li>
+                <li class="metric-item"><strong>Free:</strong> <span id="mem-free">N/A</span></li>
+            </ul>
+            <div class="chart-container"><canvas id="memoryChart"></canvas></div>
+        </div>
+
+        <!-- Disk Card -->
+        <div class="card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25A2.25 2.25 0 015.25 3h13.5A2.25 2.25 0 0121 5.25z" />
+                </svg>
+                <h2 class="card-title">Disk</h2>
+            </div>
+            <ul class="metric-list" id="disk-info">
+                <li class="metric-item"><strong>Path:</strong> <span id="disk-path">N/A</span></li>
+                <li class="metric-item"><strong>Total:</strong> <span id="disk-total">N/A</span></li>
+                <li class="metric-item"><strong>Used:</strong> <span id="disk-used">N/A</span></li>
+                <li class="metric-item"><strong>Free:</strong> <span id="disk-free">N/A</span></li>
+            </ul>
+            <div class="progress-bar-container">
+                <div id="disk-usage-bar" class="progress-bar">0%</div>
+            </div>
+        </div>
+
+        <!-- System Info Card -->
+        <div class="card">
+            <div class="card-header">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                    stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25" />
+                </svg>
+                <h2 class="card-title">System</h2>
+            </div>
+            <ul class="metric-list" id="system-info">
+                <li class="metric-item"><strong>Hostname:</strong> <span id="sys-hostname">N/A</span></li>
+                <li class="metric-item"><strong>Platform:</strong> <span id="sys-platform">N/A</span></li>
+                <li class="metric-item"><strong>OS Type:</strong> <span id="sys-type">N/A</span></li>
+                <li class="metric-item"><strong>Release:</strong> <span id="sys-release">N/A</span></li>
+                <li class="metric-item"><strong>Uptime:</strong> <span id="sys-uptime">N/A</span></li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_ENDPOINT = '/api/metrics';
+            const REFRESH_INTERVAL = 2000;
+            const CHART_MAX_DATAPOINTS = 30;
+
+            let cpuChart, memoryChart;
+
+            // Theme Management
+            const themeToggle = document.getElementById('theme-toggle');
+            const htmlEl = document.documentElement;
+
+            const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+            htmlEl.setAttribute('data-theme', savedTheme);
+
+            themeToggle.addEventListener('click', () => {
+                const newTheme = htmlEl.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+                htmlEl.setAttribute('data-theme', newTheme);
+                localStorage.setItem('theme', newTheme);
+                updateChartColors();
+            });
+
+            // Helper to get current theme colors from CSS variables
+            function getThemeColors() {
+                const styles = getComputedStyle(document.body);
+                return {
+                    accent: styles.getPropertyValue('--accent-color').trim(),
+                    accentTransparent: styles.getPropertyValue('--accent-color-transparent').trim(),
+                    textSecondary: styles.getPropertyValue('--text-secondary').trim(),
+                    borderColor: styles.getPropertyValue('--border-color').trim()
+                };
+            }
+
+            // Chart Initialization
+            function initCharts() {
+                const colors = getThemeColors();
+                const chartConfig = (label) => ({
+                    type: 'line',
+                    data: {
+                        labels: [],
+                        datasets: [{
+                            label: label,
+                            data: [],
+                            borderColor: colors.accent,
+                            backgroundColor: colors.accentTransparent,
+                            borderWidth: 2,
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { color: colors.textSecondary },
+                                grid: { color: colors.borderColor }
+                            },
+                            x: {
+                                ticks: { display: false },
+                                grid: { display: false }
+                            }
+                        },
+                        plugins: { legend: { display: false } }
+                    }
+                });
+
+                cpuChart = new Chart(document.getElementById('cpuChart'), chartConfig('CPU Usage (%)'));
+                memoryChart = new Chart(document.getElementById('memoryChart'), chartConfig('Memory Usage (%)'));
+            }
+
+            // Update chart colors on theme switch
+            function updateChartColors() {
+                const colors = getThemeColors();
+                [cpuChart, memoryChart].forEach(chart => {
+                    chart.data.datasets[0].borderColor = colors.accent;
+                    chart.data.datasets[0].backgroundColor = colors.accentTransparent;
+                    chart.options.scales.y.ticks.color = colors.textSecondary;
+                    chart.options.scales.y.grid.color = colors.borderColor;
+                    chart.update();
+                });
+            }
+
+            function updateChartData(chart, newData) {
+                const now = new Date().toLocaleTimeString();
+                chart.data.labels.push(now);
+                chart.data.datasets[0].data.push(newData);
+
+                if (chart.data.labels.length > CHART_MAX_DATAPOINTS) {
+                    chart.data.labels.shift();
+                    chart.data.datasets[0].data.shift();
+                }
+                chart.update('none');
+            }
+
+            function updateUI(data) {
+                document.getElementById('cpu-model').textContent = data.cpu.model.split('@')[0].trim();
+                document.getElementById('cpu-cores').textContent = data.cpu.cores;
+                document.getElementById('cpu-speed').textContent = `${data.cpu.speed} MHz`;
+                updateChartData(cpuChart, data.cpu.usage);
+
+                document.getElementById('mem-total').textContent = `${data.memory.total} GB`;
+                document.getElementById('mem-used').textContent = `${data.memory.used} GB`;
+                document.getElementById('mem-free').textContent = `${data.memory.free} GB`;
+                updateChartData(memoryChart, data.memory.usagePercent);
+
+                document.getElementById('disk-path').textContent = data.disk.path;
+                document.getElementById('disk-total').textContent = `${data.disk.total} GB`;
+                document.getElementById('disk-used').textContent = `${data.disk.used} GB`;
+                document.getElementById('disk-free').textContent = `${data.disk.free} GB`;
+
+                const diskUsageBar = document.getElementById('disk-usage-bar');
+                diskUsageBar.style.width = `${data.disk.usagePercent}%`;
+                diskUsageBar.textContent = `${data.disk.usagePercent}%`;
+
+                document.getElementById('sys-hostname').textContent = data.system.hostname;
+                document.getElementById('sys-platform').textContent = data.system.platform;
+                document.getElementById('sys-type').textContent = data.system.type;
+                document.getElementById('sys-release').textContent = data.system.release;
+                document.getElementById('sys-uptime').textContent = formatUptime(data.system.uptime);
+
+                document.getElementById('last-updated').textContent = `Updated: ${new Date(data.timestamp).toLocaleString()}`;
+            }
+
+            function formatUptime(seconds) {
+                seconds = Number(seconds);
+                const d = Math.floor(seconds / (3600 * 24));
+                const h = Math.floor(seconds % (3600 * 24) / 3600);
+                const m = Math.floor(seconds % 3600 / 60);
+                const s = Math.floor(seconds % 60);
+
+                let parts = [];
+                if (d > 0) parts.push(`${d}d`);
+                if (h > 0) parts.push(`${h}h`);
+                if (m > 0) parts.push(`${m}m`);
+                if (s > 0 || parts.length === 0) parts.push(`${s}s`);
+                return parts.slice(0, 2).join(' '); // Show max 2 units
+            }
+
+            async function fetchMetrics() {
+                try {
+                    const response = await fetch(API_ENDPOINT);
+                    if (!response.ok) throw new Error(`HTTP error ${response.status}`);
+                    const data = await response.json();
+                    updateUI(data);
+                    document.getElementById('error-message').style.display = 'none';
+                } catch (error) {
+                    console.error('Failed to fetch metrics:', error);
+                    document.getElementById('error-message').style.display = 'block';
+                }
+            }
+
+            initCharts();
+            fetchMetrics();
+            setInterval(fetchMetrics, REFRESH_INTERVAL);
+        });
+    </script>
+</body>
+
+</html>
